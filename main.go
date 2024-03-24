@@ -26,9 +26,9 @@ func createGroup() *geecache.Group {
 			return nil, fmt.Errorf("%s not exist", key)
 		}))
 }
-func startCacheServer(addr string, addrs []string, gee *geecache.Group) {
+func startCacheServer(addr string, gee *geecache.Group) {
 	peers := geecache.NewGRPCPool(addr)
-	peers.Set(addrs...)
+	go peers.Watch()
 	defer peers.Close()
 	gee.RegisterPeers(peers)
 
@@ -60,20 +60,11 @@ func main() {
 	flag.Parse()
 
 	apiAddr := "http://localhost:9999"
-	addrMap := map[int]string{
-		8001: "localhost:8001",
-		8002: "localhost:8002",
-		8003: "localhost:8003",
-	}
-
-	var addrs []string
-	for _, v := range addrMap {
-		addrs = append(addrs, v)
-	}
 
 	gee := createGroup()
 	if api {
 		go startAPIServer(apiAddr, gee)
 	}
-	startCacheServer(addrMap[port], []string(addrs), gee)
+	addr := fmt.Sprintf("localhost:%d", port)
+	startCacheServer(addr, gee)
 }
