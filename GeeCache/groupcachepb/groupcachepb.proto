@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+option go_package = ".;groupcachepb";
+
+service GroupCache {
+    rpc Get(GroupRequest) returns (GroupReply);
+}
+
+message GroupRequest {
+    string group = 1;
+    string key = 2;
+}
+
+message GroupReply {
+    bytes view = 1;
+}
